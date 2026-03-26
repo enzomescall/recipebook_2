@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "Recipebook",
+    "slug": "recipebook",
+    "scheme": "recipebook",
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-web-browser"
+    ]
+  }
+}
