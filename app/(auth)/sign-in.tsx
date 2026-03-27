@@ -2,6 +2,7 @@ import { Link } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import { Button, Card, Input } from "../../components/ui";
 import { Screen } from "../../components/layout";
@@ -35,9 +36,16 @@ export default function SignInScreen() {
 
   return (
     <Screen>
+      <View style={styles.brand}>
+        <View style={styles.logoMark}>
+          <Ionicons name="restaurant" size={28} color={theme.colors.accent} />
+        </View>
+        <Text style={styles.appName}>Recipebook</Text>
+      </View>
+
       <View style={styles.header}>
         <Text style={styles.title}>Welcome back</Text>
-        <Text style={styles.subtitle}>Pick up your recipes, rankings, and social feed where you left off.</Text>
+        <Text style={styles.subtitle}>Sign in to your account to continue.</Text>
       </View>
 
       <Card>
@@ -76,42 +84,61 @@ export default function SignInScreen() {
           />
           {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
           {!isSupabaseConfigured ? (
-            <Text style={styles.helper}>Add the Expo public Supabase env vars before signing in.</Text>
+            <Text style={styles.helper}>Add the Supabase env vars to sign in.</Text>
           ) : null}
           <Button
             label="Sign in"
             loading={isSubmitting}
             disabled={!isSupabaseConfigured}
+            fullWidth
             onPress={handleSubmit(onSubmit)}
           />
-          <Link href="/forgot-password" style={styles.link}>
-            Forgot your password?
-          </Link>
-          <Link href="/sign-up" style={styles.link}>
-            New here? Create an account
-          </Link>
         </View>
       </Card>
+
+      <View style={styles.links}>
+        <Link href="/forgot-password" style={styles.link}>Forgot password?</Link>
+        <Text style={styles.linkDivider}>·</Text>
+        <Link href="/sign-up" style={styles.link}>Create an account</Link>
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
+  brand: {
+    alignItems: "center",
+    flexDirection: "row",
     gap: theme.spacing.sm,
-    paddingTop: theme.spacing.xl * 1.5
+    paddingTop: theme.spacing.xxl
+  },
+  logoMark: {
+    alignItems: "center",
+    backgroundColor: theme.colors.accentSoft,
+    borderRadius: theme.radius.md,
+    height: 52,
+    justifyContent: "center",
+    width: 52
+  },
+  appName: {
+    color: theme.colors.text,
+    fontFamily: theme.fonts.display,
+    fontSize: 26,
+    fontWeight: "700"
+  },
+  header: {
+    gap: 4
   },
   title: {
     color: theme.colors.text,
     fontFamily: theme.fonts.display,
-    fontSize: 34,
+    fontSize: 30,
     fontWeight: "700"
   },
   subtitle: {
     color: theme.colors.muted,
     fontFamily: theme.fonts.body,
-    fontSize: 15,
-    lineHeight: 22
+    fontSize: 15
   },
   form: {
     gap: theme.spacing.md
@@ -119,19 +146,27 @@ const styles = StyleSheet.create({
   helper: {
     color: theme.colors.muted,
     fontFamily: theme.fonts.body,
-    fontSize: 13,
-    lineHeight: 20
+    fontSize: 13
   },
   error: {
     color: theme.colors.danger,
     fontFamily: theme.fonts.body,
-    fontSize: 13,
-    lineHeight: 20
+    fontSize: 13
+  },
+  links: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: theme.spacing.sm,
+    justifyContent: "center"
   },
   link: {
     color: theme.colors.accent,
     fontFamily: theme.fonts.body,
     fontSize: 14,
     fontWeight: "700"
+  },
+  linkDivider: {
+    color: theme.colors.line,
+    fontSize: 16
   }
 });

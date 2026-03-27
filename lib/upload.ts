@@ -1,17 +1,9 @@
-import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 
-import { getSupabaseClient } from "./supabase/client";
+import { getSupabaseClient, supabaseUrl, supabaseAnonKey } from "./supabase/client";
 
-function decode(base64: string): Uint8Array {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return bytes;
-}
-
-// Pick an image from device library or camera
-// Returns local URI string, or null if cancelled
+// Pick an image from device library or camera.
+// Returns local URI string, or null if cancelled.
 export async function pickImage(options?: {
   allowsEditing?: boolean;
   aspect?: [number, number];
@@ -30,9 +22,9 @@ export async function pickImage(options?: {
   return result.assets[0]?.uri ?? null;
 }
 
-// Upload an image file to Supabase storage
-// Returns the public URL of the uploaded file
-// Throws on failure
+// Upload an image to Supabase storage.
+// Works on both native (file:// URIs) and web (blob: URIs) via fetch.
+// Returns the public URL of the uploaded file.
 export async function uploadImage(params: {
   bucket: "profiles" | "recipes" | "meals" | "recipe-steps";
   path: string;
@@ -41,28 +33,46 @@ export async function uploadImage(params: {
 }): Promise<string> {
   const { bucket, path, uri, mimeType = "image/jpeg" } = params;
 
-  const base64 = await FileSystem.readAsStringAsync(uri, {
-    encoding: "base64"
-  });
-
-  const bytes = decode(base64);
-
   const supabase = getSupabaseClient();
-  const { error } = await supabase.storage.from(bucket).upload(path, bytes, {
-    contentType: mimeType,
-    upsert: true
+
+  // Ensure the session JWT is loaded. On web, AsyncStorage is async so the
+  // Supabase storage SDK may not have the token yet — we attach it manually.
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    throw new Error("Not authenticated. Please sign in and try again.");
+  }
+
+  const response = await fetch(uri);
+  if (!response.ok) {
+    throw new Error("Failed to read image file.");
+  }
+  const blob = await response.blob();
+
+  // Bypass the storage SDK and use a raw fetch so the Bearer token is
+  // guaranteed to be included regardless of AsyncStorage init timing.
+  const uploadUrl = `${supabaseUrl}/storage/v1/object/${bucket}/${path}`;
+  const uploadResponse = await fetch(uploadUrl, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${session.access_token}`,
+      "apikey": supabaseAnonKey!,
+      "Content-Type": mimeType,
+      "x-upsert": "true"
+    },
+    body: blob
   });
 
-  if (error) {
-    throw new Error(`Failed to upload image: ${error.message}`);
+  if (!uploadResponse.ok) {
+    const body = await uploadResponse.text();
+    throw new Error(`Failed to upload image: ${body}`);
   }
 
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-  return data.publicUrl;
+  return `${data.publicUrl}?v=${Date.now()}`;
 }
 
-// Convenience: pick then upload in one call
-// Returns public URL, or null if user cancelled
+// Convenience: pick then upload in one call.
+// Returns public URL, or null if user cancelled.
 export async function pickAndUploadImage(params: {
   bucket: "profiles" | "recipes" | "meals" | "recipe-steps";
   path: string;

@@ -5,6 +5,7 @@ import {
   Text,
   View
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import { Button } from "./Button";
 import { Card } from "./Card";
@@ -21,8 +22,8 @@ type StateProps = {
 export function LoadingState({ title, description }: StateProps) {
   return (
     <Card>
-      <View style={styles.stateRow}>
-        <ActivityIndicator color={theme.colors.accent} />
+      <View style={styles.stateStack}>
+        <ActivityIndicator color={theme.colors.accent} size="large" />
         <View style={styles.stateCopy}>
           <Text style={styles.stateTitle}>{title}</Text>
           {description ? <Text style={styles.stateDescription}>{description}</Text> : null}
@@ -36,12 +37,12 @@ export function EmptyState({ title, description, actionLabel, onAction, footer }
   return (
     <Card>
       <View style={styles.stateStack}>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>0</Text>
+        <View style={styles.iconWrap}>
+          <Ionicons name="restaurant-outline" size={28} color={theme.colors.muted} />
         </View>
         <Text style={styles.stateTitle}>{title}</Text>
         {description ? <Text style={styles.stateDescription}>{description}</Text> : null}
-        {actionLabel && onAction ? <Button label={actionLabel} onPress={onAction} /> : null}
+        {actionLabel && onAction ? <Button label={actionLabel} onPress={onAction} variant="secondary" size="sm" /> : null}
         {footer}
       </View>
     </Card>
@@ -52,12 +53,12 @@ export function ErrorState({ title, description, actionLabel = "Try again", onAc
   return (
     <Card>
       <View style={styles.stateStack}>
-        <View style={[styles.badge, styles.errorBadge]}>
-          <Text style={[styles.badgeText, styles.errorBadgeText]}>!</Text>
+        <View style={[styles.iconWrap, styles.errorIconWrap]}>
+          <Ionicons name="warning-outline" size={28} color={theme.colors.danger} />
         </View>
         <Text style={styles.stateTitle}>{title}</Text>
         {description ? <Text style={styles.stateDescription}>{description}</Text> : null}
-        {onAction ? <Button label={actionLabel} onPress={onAction} variant="secondary" /> : null}
+        {onAction ? <Button label={actionLabel} onPress={onAction} variant="secondary" size="sm" /> : null}
         {footer}
       </View>
     </Card>
@@ -65,17 +66,12 @@ export function ErrorState({ title, description, actionLabel = "Try again", onAc
 }
 
 const styles = StyleSheet.create({
-  stateRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: theme.spacing.md
-  },
   stateStack: {
     alignItems: "flex-start",
-    gap: theme.spacing.sm
+    gap: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs
   },
   stateCopy: {
-    flex: 1,
     gap: theme.spacing.xs
   },
   stateTitle: {
@@ -90,24 +86,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20
   },
-  badge: {
+  iconWrap: {
     alignItems: "center",
     backgroundColor: theme.colors.surfaceStrong,
-    borderRadius: theme.radius.pill,
-    height: 40,
+    borderRadius: theme.radius.md,
+    height: 52,
     justifyContent: "center",
-    width: 40
+    width: 52
   },
-  errorBadge: {
+  errorIconWrap: {
     backgroundColor: theme.colors.accentSoft
-  },
-  badgeText: {
-    color: theme.colors.text,
-    fontFamily: theme.fonts.display,
-    fontSize: 18,
-    fontWeight: "700"
-  },
-  errorBadgeText: {
-    color: theme.colors.danger
   }
 });

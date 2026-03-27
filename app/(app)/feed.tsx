@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { GestureResponderEvent, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { GestureResponderEvent, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
+import { Ionicons } from "@expo/vector-icons";
 
-import { Avatar, Button, Card, EmptyState, ErrorState, LoadingState } from "../../components/ui";
+import { Avatar, Card, EmptyState, ErrorState, LoadingState } from "../../components/ui";
 import { Screen } from "../../components/layout";
 import { theme } from "../../constants/theme";
 import { isSupabaseConfigured } from "../../lib/supabase/client";
@@ -47,19 +48,16 @@ export default function FeedScreen() {
       }}
     >
       <View style={styles.header}>
-        <Text style={styles.sectionLabel}>Feed</Text>
-        <Text style={styles.title}>A calm place for meals people actually want to share.</Text>
+        <Text style={styles.title}>Your Feed</Text>
         <Text style={styles.subtitle}>
-          {isSupabaseConfigured
-            ? "Live posts from the meals you can access."
-            : "Connect Supabase to turn this screen into a live feed."}
+          {isSupabaseConfigured ? "Meals from people you follow" : "Connect Supabase to load your feed"}
         </Text>
       </View>
 
       {feed.isError ? (
         <ErrorState
           title="Could not load the feed"
-          description={feed.error instanceof Error ? feed.error.message : "Try refreshing the feed."}
+          description={feed.error instanceof Error ? feed.error.message : "Try refreshing."}
           actionLabel="Retry"
           onAction={() => void feed.refetch()}
         />
@@ -67,13 +65,13 @@ export default function FeedScreen() {
 
       {!isSupabaseConfigured ? (
         <EmptyState
-          title="Connect your backend"
+          title="No backend connected"
           description="Add the Supabase env vars to load the live meal feed."
           actionLabel="Refresh"
           onAction={() => void feed.refetch()}
         />
       ) : isLoading ? (
-        <LoadingState title="Loading feed" description="Pulling in the latest meals you can see." />
+        <LoadingState title="Loading your feed" description="Pulling in the latest meals." />
       ) : feed.data?.length ? (
         <View style={styles.list}>
           {feed.data.map((item) => {
@@ -85,34 +83,59 @@ export default function FeedScreen() {
                 interactive
                 onPress={() => router.push({ pathname: "/(app)/meal-detail", params: { mealId: item.meal.id } })}
               >
-                <View style={styles.postHeader}>
-                  <Avatar name={item.owner.displayName} size={44} />
-                  <View style={styles.postMeta}>
-                    <Text style={styles.postName}>{item.owner.displayName}</Text>
-                    <Text style={styles.postHandle}>@{item.owner.username}</Text>
-                  </View>
-                  <View style={styles.rankPill}>
-                    <Text style={styles.rankText}>#{item.meal.rankPosition || 1}</Text>
+                {/* Author row */}
+                <View style={styles.authorRow}>
+                  <Avatar name={item.owner.displayName} uri={item.owner.profileImageUrl} size={40} />
+                  <View style={styles.authorMeta}>
+                    <Text style={styles.authorName}>{item.owner.displayName}</Text>
+                    <Text style={styles.authorHandle}>@{item.owner.username}</Text>
                   </View>
                 </View>
 
-                <View style={styles.postHero}>
-                  <Text style={styles.postTitle}>{item.meal.title}</Text>
-                  {item.recipe ? <Text style={styles.postRecipe}>{item.recipe.title}</Text> : null}
-                  <Text style={styles.postCaption}>{item.meal.caption ?? "No caption added yet."}</Text>
+                {/* Meal content */}
+                <View style={styles.mealBody}>
+                  <View style={styles.mealTitleRow}>
+                    <Text style={[styles.mealTitle, { flex: 1 }]}>{item.meal.title}</Text>
+                    <View style={styles.rankBadge}>
+                      <Text style={styles.rankLabel}>#{item.meal.rankPosition || 1}</Text>
+                    </View>
+                  </View>
+                  {item.recipe ? (
+                    <View style={styles.recipeTag}>
+                      <Ionicons name="book-outline" size={12} color={theme.colors.accent} />
+                      <Text style={styles.recipeTagText}>{item.recipe.title}</Text>
+                    </View>
+                  ) : null}
+                  {item.meal.caption ? (
+                    <Text style={styles.caption}>{item.meal.caption}</Text>
+                  ) : null}
                 </View>
 
+                {/* Meta row */}
                 <View style={styles.metaRow}>
-                  <Text style={styles.metaChip}>{item.meal.visibility}</Text>
-                  <Text style={styles.metaCopy}>{formatRelativeTime(item.meal.createdAt)}</Text>
-                  {item.recipe?.cuisine ? <Text style={styles.metaCopy}>{item.recipe.cuisine}</Text> : null}
+                  <Text style={styles.metaTime}>{formatRelativeTime(item.meal.createdAt)}</Text>
+                  {item.recipe?.cuisine ? (
+                    <>
+                      <Text style={styles.metaDot}>·</Text>
+                      <Text style={styles.metaText}>{item.recipe.cuisine}</Text>
+                    </>
+                  ) : null}
+                  {item.meal.visibility !== "public" ? (
+                    <>
+                      <Text style={styles.metaDot}>·</Text>
+                      <Ionicons
+                        name={item.meal.visibility === "followers" ? "people-outline" : "lock-closed-outline"}
+                        size={12}
+                        color={theme.colors.muted}
+                      />
+                    </>
+                  ) : null}
                 </View>
 
+                {/* Social row */}
                 <View style={styles.socialRow}>
-                  <Button
-                    label={isLiked ? "♥ Liked" : "♥ Like"}
-                    variant="ghost"
-                    size="sm"
+                  <Pressable
+                    style={[styles.socialBtn, isLiked && styles.socialBtnActive]}
                     disabled={!currentUser || likeMutation.isPending}
                     onPress={(e: GestureResponderEvent) => {
                       e.stopPropagation();
@@ -120,17 +143,27 @@ export default function FeedScreen() {
                         likeMutation.mutate({ mealId: item.meal.id, ownerId: item.meal.ownerId });
                       }
                     }}
-                    style={isLiked ? styles.socialBtnActive : undefined}
-                  />
-                  <Button
-                    label="💬 Comment"
-                    variant="ghost"
-                    size="sm"
+                  >
+                    <Ionicons
+                      name={isLiked ? "heart" : "heart-outline"}
+                      size={18}
+                      color={isLiked ? theme.colors.accent : theme.colors.muted}
+                    />
+                    <Text style={[styles.socialLabel, isLiked && styles.socialLabelActive]}>
+                      {isLiked ? "Liked" : "Like"}
+                    </Text>
+                  </Pressable>
+
+                  <Pressable
+                    style={styles.socialBtn}
                     onPress={(e: GestureResponderEvent) => {
                       e.stopPropagation();
                       router.push({ pathname: "/(app)/comments", params: { mealId: item.meal.id } });
                     }}
-                  />
+                  >
+                    <Ionicons name="chatbubble-outline" size={17} color={theme.colors.muted} />
+                    <Text style={styles.socialLabel}>Comment</Text>
+                  </Pressable>
                 </View>
               </Card>
             );
@@ -138,8 +171,8 @@ export default function FeedScreen() {
         </View>
       ) : (
         <EmptyState
-          title="No meals yet"
-          description="Once you start creating and sharing meals, they will appear here in chronological order."
+          title="Nothing here yet"
+          description="Follow people and create meals — they'll show up here."
           actionLabel="Refresh"
           onAction={() => void feed.refetch()}
         />
@@ -150,118 +183,143 @@ export default function FeedScreen() {
 
 const styles = StyleSheet.create({
   header: {
-    gap: theme.spacing.sm,
-    paddingTop: theme.spacing.xl * 1.2
-  },
-  sectionLabel: {
-    color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
-    fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1.2,
-    textTransform: "uppercase"
+    gap: theme.spacing.xs,
+    paddingTop: theme.spacing.xl
   },
   title: {
     color: theme.colors.text,
     fontFamily: theme.fonts.display,
-    fontSize: 30,
-    lineHeight: 36,
-    fontWeight: "700",
-    maxWidth: 320
+    fontSize: 28,
+    fontWeight: "700"
   },
   subtitle: {
     color: theme.colors.muted,
     fontFamily: theme.fonts.body,
-    fontSize: 14,
-    lineHeight: 20,
-    maxWidth: 360
+    fontSize: 14
   },
   list: {
     gap: theme.spacing.md
   },
-  postHeader: {
+
+  // Author
+  authorRow: {
     alignItems: "center",
     flexDirection: "row",
-    gap: theme.spacing.md
+    gap: theme.spacing.sm
   },
-  postMeta: {
+  authorMeta: {
     flex: 1,
-    gap: 2
+    gap: 1
   },
-  postName: {
+  authorName: {
     color: theme.colors.text,
     fontFamily: theme.fonts.body,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "700"
   },
-  postHandle: {
+  authorHandle: {
     color: theme.colors.muted,
     fontFamily: theme.fonts.body,
-    fontSize: 13
+    fontSize: 12
   },
-  rankPill: {
+  rankBadge: {
     alignItems: "center",
     backgroundColor: theme.colors.accentSoft,
     borderRadius: theme.radius.pill,
-    height: 34,
-    justifyContent: "center",
-    width: 34
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: 4
   },
-  rankText: {
+  rankLabel: {
     color: theme.colors.accent,
     fontFamily: theme.fonts.body,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "800"
   },
-  postHero: {
-    backgroundColor: theme.colors.surfaceStrong,
-    borderRadius: theme.radius.md,
-    gap: theme.spacing.xs,
-    padding: theme.spacing.md
+
+  // Meal
+  mealBody: {
+    gap: theme.spacing.xs
   },
-  postTitle: {
+  mealTitleRow: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: theme.spacing.sm
+  },
+  mealTitle: {
     color: theme.colors.text,
     fontFamily: theme.fonts.display,
     fontSize: 20,
-    fontWeight: "700"
+    fontWeight: "700",
+    lineHeight: 26
   },
-  postRecipe: {
+  recipeTag: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 4
+  },
+  recipeTagText: {
     color: theme.colors.accent,
     fontFamily: theme.fonts.body,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700"
   },
-  postCaption: {
+  caption: {
     color: theme.colors.muted,
     fontFamily: theme.fonts.body,
     fontSize: 14,
     lineHeight: 20
   },
+
+  // Meta
   metaRow: {
+    alignItems: "center",
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: theme.spacing.sm
+    gap: theme.spacing.xs
   },
-  metaChip: {
-    color: theme.colors.text,
-    fontFamily: theme.fonts.body,
-    fontSize: 12,
-    fontWeight: "700",
-    textTransform: "capitalize"
-  },
-  metaCopy: {
+  metaTime: {
     color: theme.colors.muted,
     fontFamily: theme.fonts.body,
     fontSize: 12
   },
+  metaDot: {
+    color: theme.colors.muted,
+    fontSize: 12
+  },
+  metaText: {
+    color: theme.colors.muted,
+    fontFamily: theme.fonts.body,
+    fontSize: 12
+  },
+
+  // Social
   socialRow: {
     borderTopColor: theme.colors.line,
     borderTopWidth: 1,
     flexDirection: "row",
-    gap: theme.spacing.xs,
-    paddingTop: theme.spacing.xs
+    gap: theme.spacing.sm,
+    paddingTop: theme.spacing.sm
+  },
+  socialBtn: {
+    alignItems: "center",
+    borderColor: theme.colors.line,
+    borderRadius: theme.radius.pill,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 6,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs
   },
   socialBtnActive: {
-    backgroundColor: theme.colors.accentSoft
+    backgroundColor: theme.colors.accentSoft,
+    borderColor: theme.colors.accentSoft
+  },
+  socialLabel: {
+    color: theme.colors.muted,
+    fontFamily: theme.fonts.body,
+    fontSize: 13,
+    fontWeight: "600"
+  },
+  socialLabelActive: {
+    color: theme.colors.accent
   }
 });

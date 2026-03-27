@@ -325,7 +325,7 @@ export default function CreateScreen() {
     <Screen>
       <View style={styles.header}>
         <Text style={styles.sectionLabel}>Create</Text>
-        <Text style={styles.title}>Save a recipe first, then turn it into a ranked meal.</Text>
+        <Text style={styles.title}>New recipe & meal.</Text>
         <Text style={styles.subtitle}>
           {recipes.length} recipes and {meals.length} meals in your account so far.
         </Text>

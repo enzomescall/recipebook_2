@@ -10,7 +10,7 @@ import { Avatar, Button, Card, ErrorState, Input, LoadingState } from "../../com
 import { theme } from "../../constants/theme";
 import { buildProfileViewModel, profileFormSchema, useCurrentProfile, type ProfileFormValues } from "../../features/profile";
 import { updateCurrentProfile } from "../../lib/api/profiles";
-import { pickAndUploadImage } from "../../lib/upload";
+import { pickImage, uploadImage } from "../../lib/upload";
 import { useSessionStore } from "../../store/session";
 
 function buildInitialValues(viewModel: ReturnType<typeof buildProfileViewModel>, profileImageUrl?: string | null): ProfileFormValues {
@@ -36,6 +36,8 @@ export default function EditProfileScreen() {
   const initialProfileImageUrl = profile?.profileImageUrl ?? "";
 
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [localPreviewUri, setLocalPreviewUri] = useState<string | null>(null);
 
   const {
     control,
@@ -77,23 +79,31 @@ export default function EditProfileScreen() {
     }
   });
 
-  const avatarUrl = watch("profileImageUrl");
+  const savedAvatarUrl = watch("profileImageUrl");
+  const avatarUrl = localPreviewUri ?? (savedAvatarUrl || undefined);
 
   async function handleChangePhoto() {
     if (!sessionUser?.id) return;
+    setUploadError(null);
 
+    const uri = await pickImage({ allowsEditing: true, aspect: [1, 1] });
+    if (!uri) return;
+
+    // Show local preview immediately while uploading
+    setLocalPreviewUri(uri);
     setIsUploading(true);
+
     try {
-      const publicUrl = await pickAndUploadImage({
+      const publicUrl = await uploadImage({
         bucket: "profiles",
         path: `${sessionUser.id}/avatar.jpg`,
-        options: { allowsEditing: true, aspect: [1, 1] }
+        uri
       });
-      if (publicUrl !== null) {
-        setValue("profileImageUrl", publicUrl, { shouldValidate: true });
-      }
+      setValue("profileImageUrl", publicUrl, { shouldValidate: true });
+      setLocalPreviewUri(null); // remote URL is now in the form, drop the local blob
     } catch (err) {
-      // Upload failed — leave existing value in place
+      setUploadError(err instanceof Error ? err.message : "Upload failed.");
+      // keep localPreviewUri so the user can still see what they picked
     } finally {
       setIsUploading(false);
     }
@@ -143,17 +153,18 @@ export default function EditProfileScreen() {
         <View style={styles.avatarBlock}>
           <Avatar
             name={watch("displayName") || viewModel.name}
-            source={avatarUrl ? { uri: avatarUrl } : undefined}
+            uri={avatarUrl}
             size={84}
           />
           <Button
-            label={isUploading ? "Uploading..." : "Change Photo"}
+            label={isUploading ? "Uploading..." : "Change photo"}
             variant="secondary"
             size="sm"
             loading={isUploading}
             disabled={isUploading}
             onPress={handleChangePhoto}
           />
+          {uploadError ? <Text style={styles.uploadError}>{uploadError}</Text> : null}
         </View>
       </Card>
 
@@ -252,5 +263,11 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.body,
     fontSize: 13,
     lineHeight: 20
+  },
+  uploadError: {
+    color: theme.colors.danger,
+    fontFamily: theme.fonts.body,
+    fontSize: 12,
+    textAlign: "center"
   }
 });

@@ -59,22 +59,22 @@ const styles = StyleSheet.create({
   },
   orbTop: {
     position: "absolute",
-    top: -48,
-    right: -56,
+    top: -60,
+    right: -70,
     width: 180,
     height: 180,
     borderRadius: 180,
     backgroundColor: theme.colors.accentSoft,
-    opacity: 0.7
+    opacity: 0.55
   },
   orbBottom: {
     position: "absolute",
-    left: -70,
-    bottom: 40,
+    left: -90,
+    bottom: -60,
     width: 200,
     height: 200,
     borderRadius: 200,
     backgroundColor: theme.colors.surfaceStrong,
-    opacity: 0.8
+    opacity: 0.6
   }
 });

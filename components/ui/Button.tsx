@@ -81,8 +81,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: theme.fonts.body,
-    fontWeight: "700",
-    letterSpacing: 0.2
+    fontWeight: "700"
   }
 });
 

@@ -120,7 +120,7 @@ export default function LibraryScreen() {
     <Screen>
       <View style={styles.header}>
         <Text style={styles.sectionLabel}>Library</Text>
-        <Text style={styles.title}>Your ranked meals, ready for search now and reranking next.</Text>
+        <Text style={styles.title}>Your ranked meals.</Text>
       </View>
 
       <Input
@@ -211,7 +211,7 @@ export default function LibraryScreen() {
                 </View>
                 <View style={styles.rankCopy}>
                   <Text style={styles.mealTitle}>{meal.title}</Text>
-                  <Text style={styles.mealMeta}>{meal.visibility} visibility</Text>
+                  <Text style={styles.mealMeta}>{meal.visibility}</Text>
                   {meal.caption ? <Text style={styles.caption}>{meal.caption}</Text> : null}
                 </View>
                 <Button
@@ -301,11 +301,9 @@ const styles = StyleSheet.create({
     fontWeight: "700"
   },
   mealMeta: {
-    color: theme.colors.accent,
+    color: theme.colors.muted,
     fontFamily: theme.fonts.body,
-    fontSize: 12,
-    fontWeight: "700",
-    textTransform: "uppercase"
+    fontSize: 12
   },
   caption: {
     color: theme.colors.muted,

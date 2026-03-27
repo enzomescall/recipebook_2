@@ -7,6 +7,7 @@ export type ProfileViewModel = {
   handle: string;
   bio: string;
   avatarSeed: string;
+  avatarUrl: string | null;
   followersCount: number;
   followingCount: number;
   mealsCount: string;
@@ -31,6 +32,7 @@ export function buildProfileViewModel(profile: UserProfile | null, user: User | 
     handle: formatHandle(username),
     bio,
     avatarSeed: displayName,
+    avatarUrl: profile?.profileImageUrl ?? null,
     followersCount: profile?.followersCount ?? 0,
     followingCount: profile?.followingCount ?? 0,
     mealsCount: "0",

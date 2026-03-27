@@ -46,7 +46,7 @@ export default function ProfileScreen() {
     return (
       <Screen>
         <View style={styles.header}>
-          <Avatar name={viewModel.avatarSeed} size={72} />
+          <Avatar name={viewModel.avatarSeed} uri={viewModel.avatarUrl} size={72} />
           <View style={styles.identity}>
             <Text style={styles.name}>{viewModel.name}</Text>
             <Text style={styles.handle}>{viewModel.handle}</Text>
@@ -71,7 +71,7 @@ export default function ProfileScreen() {
   return (
     <Screen>
       <View style={styles.header}>
-        <Avatar name={viewModel.avatarSeed} size={72} />
+        <Avatar name={viewModel.avatarSeed} uri={viewModel.avatarUrl} size={72} />
         <View style={styles.identity}>
           <Text style={styles.name}>{viewModel.name}</Text>
           <Text style={styles.handle}>{viewModel.handle}</Text>
@@ -128,20 +128,24 @@ function StatsRow({
   meals: string;
 }) {
   return (
-    <View style={styles.statsRow}>
-      <Card style={styles.statCard}>
-        <Text style={styles.statValue}>{meals}</Text>
-        <Text style={styles.statLabel}>Meals</Text>
-      </Card>
-      <Card style={styles.statCard}>
-        <Text style={styles.statValue}>{followers}</Text>
-        <Text style={styles.statLabel}>Followers</Text>
-      </Card>
-      <Card style={styles.statCard}>
-        <Text style={styles.statValue}>{following}</Text>
-        <Text style={styles.statLabel}>Following</Text>
-      </Card>
-    </View>
+    <Card>
+      <View style={styles.statsRow}>
+        <View style={styles.statItem}>
+          <Text style={styles.statValue}>{meals}</Text>
+          <Text style={styles.statLabel}>Meals</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={styles.statValue}>{followers}</Text>
+          <Text style={styles.statLabel}>Followers</Text>
+        </View>
+        <View style={styles.statDivider} />
+        <View style={styles.statItem}>
+          <Text style={styles.statValue}>{following}</Text>
+          <Text style={styles.statLabel}>Following</Text>
+        </View>
+      </View>
+    </Card>
   );
 }
 
@@ -199,11 +203,16 @@ const styles = StyleSheet.create({
     lineHeight: 20
   },
   statsRow: {
-    flexDirection: "row",
-    gap: theme.spacing.sm
+    flexDirection: "row"
   },
-  statCard: {
-    flex: 1
+  statItem: {
+    alignItems: "center",
+    flex: 1,
+    gap: 2
+  },
+  statDivider: {
+    backgroundColor: theme.colors.line,
+    width: 1
   },
   statValue: {
     color: theme.colors.text,
@@ -215,9 +224,7 @@ const styles = StyleSheet.create({
     color: theme.colors.muted,
     fontFamily: theme.fonts.body,
     fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.3,
-    textTransform: "uppercase"
+    fontWeight: "600"
   },
   block: {
     gap: theme.spacing.sm

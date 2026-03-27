@@ -2,8 +2,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { ENV_KEYS } from "@/constants/env";
 
-const supabaseUrl = process.env[ENV_KEYS.supabaseUrl];
-const supabaseAnonKey = process.env[ENV_KEYS.supabaseAnonKey];
+export const supabaseUrl = process.env[ENV_KEYS.supabaseUrl];
+export const supabaseAnonKey = process.env[ENV_KEYS.supabaseAnonKey];
 
 let cachedClient: SupabaseClient | null = null;
 

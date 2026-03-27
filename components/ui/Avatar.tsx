@@ -4,18 +4,20 @@ import { theme } from "../../constants/theme";
 
 type AvatarProps = {
   name?: string;
+  uri?: string | null;
   source?: ImageSourcePropType;
   size?: number;
   style?: StyleProp<ViewStyle>;
 };
 
-export function Avatar({ name, source, size = 48, style }: AvatarProps) {
+export function Avatar({ name, uri, source, size = 48, style }: AvatarProps) {
   const initials = buildInitials(name);
+  const resolvedSource = source ?? (uri ? { uri } : undefined);
 
   return (
     <View style={[styles.container, { width: size, height: size, borderRadius: size / 2 }, style]}>
-      {source ? (
-        <Image source={source} style={[styles.image, { width: size, height: size, borderRadius: size / 2 }]} />
+      {resolvedSource ? (
+        <Image source={resolvedSource} style={[styles.image, { width: size, height: size, borderRadius: size / 2 }]} />
       ) : (
         <Text style={[styles.initials, { fontSize: size * 0.38 }]}>{initials}</Text>
       )}
