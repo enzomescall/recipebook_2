@@ -240,15 +240,13 @@ const styles = StyleSheet.create({
   },
   backLabel: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
-    fontSize: 15,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 15
   },
   sectionLabel: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
+    fontFamily: theme.fonts.sansBold,
     fontSize: 12,
-    fontWeight: "800",
     letterSpacing: 1.2,
     textTransform: "uppercase"
   },
@@ -269,9 +267,8 @@ const styles = StyleSheet.create({
   },
   commentUser: {
     color: theme.colors.text,
-    fontFamily: theme.fonts.body,
-    fontSize: 14,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 14
   },
   commentTime: {
     color: theme.colors.muted,
@@ -287,9 +284,8 @@ const styles = StyleSheet.create({
   },
   replyBadgeText: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
-    fontSize: 11,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 11
   },
   commentBody: {
     color: theme.colors.text,
@@ -323,9 +319,8 @@ const styles = StyleSheet.create({
   },
   commentActionLabel: {
     color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 12,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 12
   },
   commentActionLabelActive: {
     color: theme.colors.accent
@@ -345,15 +340,13 @@ const styles = StyleSheet.create({
   },
   replyIndicatorText: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
-    fontSize: 13,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 13
   },
   cancelReply: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
+    fontFamily: theme.fonts.sansBold,
     fontSize: 13,
-    fontWeight: "700",
     textDecorationLine: "underline"
   },
   inputRow: {

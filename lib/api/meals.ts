@@ -111,3 +111,31 @@ export async function updateMealRankOrder(ownerId: string, orderedMealIds: strin
 export async function applyRankedOrder(ownerId: string, orderedMealIds: string[]): Promise<void> {
   return updateMealRankOrder(ownerId, orderedMealIds);
 }
+
+// Returns all meals for a recipe and its entire version family, newest first.
+export async function listMealsByRecipeFamily(rootRecipeId: string): Promise<Meal[]> {
+  const supabase = getSupabaseClient();
+
+  // Collect all recipe IDs in the version family by following parent_recipe_id chain
+  const familyIds: string[] = [rootRecipeId];
+  const { data: related } = await supabase
+    .from("recipes")
+    .select("id, parent_recipe_id")
+    .or(`id.eq.${rootRecipeId},parent_recipe_id.eq.${rootRecipeId}`);
+
+  for (const row of related ?? []) {
+    if (!familyIds.includes(row.id)) familyIds.push(row.id);
+    if (row.parent_recipe_id && !familyIds.includes(row.parent_recipe_id)) {
+      familyIds.push(row.parent_recipe_id);
+    }
+  }
+
+  const { data, error } = await supabase
+    .from("meals")
+    .select("*")
+    .in("recipe_id", familyIds)
+    .order("created_at", { ascending: false });
+
+  mapSupabaseError(error, "Failed to load meals for recipe.");
+  return (data ?? []).map((row) => toMeal(row as MealRow));
+}

@@ -18,16 +18,9 @@ type ScreenProps = {
   scrollProps?: ScrollViewProps;
 };
 
-export function Screen({
-  children,
-  scroll = true,
-  contentStyle,
-  scrollProps
-}: ScreenProps) {
+export function Screen({ children, scroll = true, contentStyle, scrollProps }: ScreenProps) {
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View pointerEvents="none" style={styles.orbTop} />
-      <View pointerEvents="none" style={styles.orbBottom} />
+    <SafeAreaView style={styles.safe}>
       {scroll ? (
         <ScrollView
           {...scrollProps}
@@ -38,14 +31,14 @@ export function Screen({
           {children}
         </ScrollView>
       ) : (
-        <View style={[styles.content, contentStyle]}>{children}</View>
+        <View style={[styles.fill, contentStyle]}>{children}</View>
       )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  safe: {
     flex: 1,
     backgroundColor: theme.colors.canvas
   },
@@ -54,27 +47,13 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.lg,
+    paddingBottom: theme.spacing.xl,
     gap: theme.spacing.lg
   },
-  orbTop: {
-    position: "absolute",
-    top: -60,
-    right: -70,
-    width: 180,
-    height: 180,
-    borderRadius: 180,
-    backgroundColor: theme.colors.accentSoft,
-    opacity: 0.55
-  },
-  orbBottom: {
-    position: "absolute",
-    left: -90,
-    bottom: -60,
-    width: 200,
-    height: 200,
-    borderRadius: 200,
-    backgroundColor: theme.colors.surfaceStrong,
-    opacity: 0.6
+  fill: {
+    flex: 1,
+    paddingHorizontal: theme.spacing.lg,
+    gap: theme.spacing.lg
   }
 });

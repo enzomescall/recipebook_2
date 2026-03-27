@@ -152,35 +152,31 @@ const styles = StyleSheet.create({
   },
   appName: {
     color: theme.colors.text,
-    fontFamily: theme.fonts.display,
-    fontSize: 26,
-    fontWeight: "700"
+    fontFamily: theme.fonts.serifBold,
+    fontSize: 26
   },
   header: {
     gap: 4
   },
   title: {
-    color: theme.colors.text,
-    fontFamily: theme.fonts.display,
-    fontSize: 30,
-    fontWeight: "700"
+    ...theme.type.hero,
+    color: theme.colors.text
   },
   subtitle: {
-    color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 15
+    ...theme.type.body,
+    color: theme.colors.muted
   },
   form: {
     gap: theme.spacing.md
   },
   helper: {
+    ...theme.type.caption,
     color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
     fontSize: 13
   },
   error: {
+    ...theme.type.caption,
     color: theme.colors.danger,
-    fontFamily: theme.fonts.body,
     fontSize: 13
   },
   links: {
@@ -189,8 +185,7 @@ const styles = StyleSheet.create({
   },
   link: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
-    fontSize: 14,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansSemiBold,
+    fontSize: 14
   }
 });

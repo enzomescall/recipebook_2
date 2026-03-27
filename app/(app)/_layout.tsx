@@ -1,4 +1,5 @@
 import { Redirect, Tabs } from "expo-router";
+import { StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import { LoadingState } from "../../components/ui";
@@ -14,10 +15,7 @@ export default function AppLayout() {
   if (isSupabaseConfigured && !isHydrated) {
     return (
       <Screen>
-        <LoadingState
-          title="Loading your kitchen"
-          description="Preparing auth and the shared app shell."
-        />
+        <LoadingState title="Loading" description="Setting up your kitchen." />
       </Screen>
     );
   }
@@ -34,21 +32,14 @@ export default function AppLayout() {
         tabBarActiveTintColor: theme.colors.accent,
         tabBarInactiveTintColor: theme.colors.muted,
         tabBarShowLabel: false,
-        tabBarStyle: {
-          backgroundColor: theme.colors.surface,
-          borderTopColor: theme.colors.line,
-          borderTopWidth: 1,
-          height: 64,
-          paddingTop: 8,
-          paddingBottom: 8
-        }
+        tabBarStyle: styles.tabBar
       }}
     >
       <Tabs.Screen
         name="feed"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "home" : "home-outline"} size={26} color={color} />
+            <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} />
           )
         }}
       />
@@ -56,23 +47,26 @@ export default function AppLayout() {
         name="library"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "book" : "book-outline"} size={26} color={color} />
+            <Ionicons name={focused ? "book" : "book-outline"} size={24} color={color} />
           )
         }}
       />
       <Tabs.Screen
         name="create"
         options={{
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "add-circle" : "add-circle-outline"} size={30} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <View style={styles.createBtn}>
+              <Ionicons name="add" size={26} color={theme.colors.white} />
+            </View>
           )
         }}
       />
+      <Tabs.Screen name="notifications" options={{ href: null }} />
       <Tabs.Screen
-        name="notifications"
+        name="saved"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "notifications" : "notifications-outline"} size={26} color={color} />
+            <Ionicons name={focused ? "bookmark" : "bookmark-outline"} size={24} color={color} />
           )
         }}
       />
@@ -80,7 +74,7 @@ export default function AppLayout() {
         name="profile"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? "person" : "person-outline"} size={26} color={color} />
+            <Ionicons name={focused ? "person" : "person-outline"} size={24} color={color} />
           )
         }}
       />
@@ -93,3 +87,22 @@ export default function AppLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: theme.colors.surface,
+    borderTopColor: theme.colors.line,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    height: 60,
+    paddingTop: 6,
+    paddingBottom: 6
+  },
+  createBtn: {
+    alignItems: "center",
+    backgroundColor: theme.colors.accent,
+    borderRadius: 20,
+    height: 40,
+    justifyContent: "center",
+    width: 40
+  }
+});

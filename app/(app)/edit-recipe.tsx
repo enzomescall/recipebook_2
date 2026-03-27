@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { Button, Card, ErrorState, Input, LoadingState } from "../../components/ui";
 import { Screen } from "../../components/layout";
 import { theme } from "../../constants/theme";
-import { getRecipeById, updateRecipe } from "../../lib/api/recipes";
+import { getRecipeById, updateRecipe, createRecipe, createRecipeVersion } from "../../lib/api/recipes";
 import { pickAndUploadImage } from "../../lib/upload";
 import { useSessionStore } from "../../store/session";
 import type { Recipe } from "../../types/domain";
@@ -90,6 +90,8 @@ export default function EditRecipeScreen() {
   const [coverUploading, setCoverUploading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [formReady, setFormReady] = useState(false);
+  const [saveModalVisible, setSaveModalVisible] = useState(false);
+  const [pendingInput, setPendingInput] = useState<Parameters<typeof updateRecipe>[1] | null>(null);
 
   const query = useQuery({
     queryKey: ["recipe", recipeId],
@@ -121,15 +123,64 @@ export default function EditRecipeScreen() {
     onSuccess: async (recipe) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["recipe", recipeId] }),
-        queryClient.invalidateQueries({ queryKey: ["recipes", user?.id] })
+        queryClient.invalidateQueries({ queryKey: ["recipes-with-stats", user?.id] })
       ]);
       setMessage(`Saved "${recipe.title}".`);
-      setTimeout(() => {
-        router.back();
-      }, 800);
+      setTimeout(() => router.back(), 800);
     },
     onError: (error) => {
       setMessage(error instanceof Error ? error.message : "Failed to save recipe.");
+    }
+  });
+
+  const forkMutation = useMutation({
+    mutationFn: (input: Parameters<typeof updateRecipe>[1]) =>
+      createRecipe({
+        ownerId: user!.id,
+        title: input.title ?? query.data!.title,
+        description: input.description ?? null,
+        coverImageUrl: input.coverImageUrl ?? null,
+        cuisine: input.cuisine ?? null,
+        servings: input.servings ?? null,
+        prepTimeMinutes: input.prepTimeMinutes ?? null,
+        cookTimeMinutes: input.cookTimeMinutes ?? null,
+        tags: input.tags ?? [],
+        dietaryLabels: input.dietaryLabels ?? [],
+        status: input.status ?? "draft",
+        ingredients: (input.ingredients ?? []).map((ing) => ({ name: ing.name ?? "", quantity: ing.quantity ?? null, unit: ing.unit ?? null, note: ing.note ?? null })),
+        steps: (input.steps ?? []).map((s) => ({ instructionText: s.instructionText ?? "", ingredientReferences: s.ingredientReferences ?? [], imageUrl: s.imageUrl ?? null }))
+      }),
+    onSuccess: async (recipe) => {
+      await queryClient.invalidateQueries({ queryKey: ["recipes-with-stats", user?.id] });
+      router.replace({ pathname: "/(app)/recipe-detail", params: { recipeId: recipe.id } });
+    },
+    onError: (error) => {
+      setMessage(error instanceof Error ? error.message : "Failed to create recipe.");
+    }
+  });
+
+  const versionMutation = useMutation({
+    mutationFn: (input: Parameters<typeof updateRecipe>[1]) =>
+      createRecipeVersion(recipeId!, {
+        title: input.title ?? query.data!.title,
+        description: input.description ?? null,
+        coverImageUrl: input.coverImageUrl ?? null,
+        cuisine: input.cuisine ?? null,
+        servings: input.servings ?? null,
+        prepTimeMinutes: input.prepTimeMinutes ?? null,
+        cookTimeMinutes: input.cookTimeMinutes ?? null,
+        tags: input.tags ?? [],
+        dietaryLabels: input.dietaryLabels ?? [],
+        status: input.status ?? "draft",
+        ingredients: (input.ingredients ?? []).map((ing) => ({ name: ing.name ?? "", quantity: ing.quantity ?? null, unit: ing.unit ?? null, note: ing.note ?? null })),
+        steps: (input.steps ?? []).map((s) => ({ instructionText: s.instructionText ?? "", ingredientReferences: s.ingredientReferences ?? [], imageUrl: s.imageUrl ?? null }))
+      }),
+    onSuccess: async (recipe) => {
+      await queryClient.invalidateQueries({ queryKey: ["recipes-with-stats", user?.id] });
+      router.replace({ pathname: "/(app)/recipe-detail", params: { recipeId: recipe.id } });
+    },
+    onError: (error) => {
+      setMessage(error instanceof Error ? error.message : "Failed to create recipe version.");
     }
   });
 
@@ -191,22 +242,20 @@ export default function EditRecipeScreen() {
     }
   }
 
-  async function handleSave() {
+  function buildInput(): Parameters<typeof updateRecipe>[1] | null {
     setMessage(null);
 
     if (!title.trim() || title.trim().length < 2) {
       setMessage("Recipe title must be at least 2 characters.");
-      return;
+      return null;
     }
-
     if (ingredients.filter((ing) => ing.name.trim().length > 0).length === 0) {
       setMessage("Add at least one ingredient.");
-      return;
+      return null;
     }
-
     if (steps.filter((step) => step.instructionText.trim().length > 0).length === 0) {
       setMessage("Add at least one step.");
-      return;
+      return null;
     }
 
     const filteredIngredients = ingredients.filter((ing) => ing.name.trim().length > 0);
@@ -216,7 +265,7 @@ export default function EditRecipeScreen() {
       if (ingredients[i].name.trim().length > 0) fullToFiltered.set(i, fi++);
     }
 
-    await saveMutation.mutateAsync({
+    return {
       title: title.trim(),
       description: description.trim() || null,
       coverImageUrl: coverUri,
@@ -238,7 +287,22 @@ export default function EditRecipeScreen() {
             .map(String),
           imageUrl: null
         }))
-    });
+    };
+  }
+
+  function handleSave() {
+    const input = buildInput();
+    if (!input) return;
+    setPendingInput(input);
+    setSaveModalVisible(true);
+  }
+
+  async function commitSave(mode: "overwrite" | "fork" | "version") {
+    if (!pendingInput) return;
+    setSaveModalVisible(false);
+    if (mode === "overwrite") await saveMutation.mutateAsync(pendingInput);
+    else if (mode === "fork") await forkMutation.mutateAsync(pendingInput);
+    else await versionMutation.mutateAsync(pendingInput);
   }
 
   if (!recipeId) {
@@ -271,6 +335,7 @@ export default function EditRecipeScreen() {
   }
 
   return (
+    <>
     <Screen>
       <View style={styles.header}>
         <View style={styles.backRow}>
@@ -493,10 +558,52 @@ export default function EditRecipeScreen() {
             />
           </View>
           {message ? <Text style={styles.helper}>{message}</Text> : null}
-          <Button label="Save changes" loading={saveMutation.isPending} onPress={handleSave} />
+          <Button
+            label="Save changes"
+            loading={saveMutation.isPending || forkMutation.isPending || versionMutation.isPending}
+            onPress={handleSave}
+          />
         </View>
       </Card>
     </Screen>
+
+    {/* Save mode modal */}
+    <Modal
+      visible={saveModalVisible}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setSaveModalVisible(false)}
+    >
+      <Pressable style={styles.modalOverlay} onPress={() => setSaveModalVisible(false)}>
+        <View style={styles.modalSheet}>
+          <Text style={styles.modalTitle}>How do you want to save?</Text>
+
+          <Pressable style={styles.modalOption} onPress={() => commitSave("overwrite")}>
+            <Text style={styles.modalOptionTitle}>Overwrite</Text>
+            <Text style={styles.modalOptionDesc}>Replace the current recipe with your changes.</Text>
+          </Pressable>
+
+          <View style={styles.modalDivider} />
+
+          <Pressable style={styles.modalOption} onPress={() => commitSave("version")}>
+            <Text style={styles.modalOptionTitle}>Create V{(query.data?.versionNumber ?? 1) + 1}</Text>
+            <Text style={styles.modalOptionDesc}>Save as a new version. Meals from both versions count toward the same recipe.</Text>
+          </Pressable>
+
+          <View style={styles.modalDivider} />
+
+          <Pressable style={styles.modalOption} onPress={() => commitSave("fork")}>
+            <Text style={styles.modalOptionTitle}>Save as new recipe</Text>
+            <Text style={styles.modalOptionDesc}>Create a completely separate, unlinked recipe.</Text>
+          </Pressable>
+
+          <Pressable style={styles.modalCancel} onPress={() => setSaveModalVisible(false)}>
+            <Text style={styles.modalCancelText}>Cancel</Text>
+          </Pressable>
+        </View>
+      </Pressable>
+    </Modal>
+    </>
   );
 }
 
@@ -531,33 +638,29 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
+    fontFamily: theme.fonts.sansBold,
     fontSize: 12,
-    fontWeight: "800",
     letterSpacing: 1.2,
     textTransform: "uppercase"
   },
   title: {
     color: theme.colors.text,
-    fontFamily: theme.fonts.display,
+    fontFamily: theme.fonts.serifBold,
     fontSize: 26,
-    lineHeight: 32,
-    fontWeight: "700"
+    lineHeight: 32
   },
   block: {
     gap: theme.spacing.md
   },
   blockTitle: {
     color: theme.colors.text,
-    fontFamily: theme.fonts.body,
-    fontSize: 16,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 16
   },
   subBlockTitle: {
     color: theme.colors.text,
-    fontFamily: theme.fonts.body,
-    fontSize: 14,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 14
   },
   sectionHeader: {
     alignItems: "center",
@@ -604,9 +707,8 @@ const styles = StyleSheet.create({
   },
   tagIngredientLabel: {
     color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
+    fontFamily: theme.fonts.sansBold,
     fontSize: 12,
-    fontWeight: "700",
     letterSpacing: 0.6,
     textTransform: "uppercase"
   },
@@ -624,11 +726,59 @@ const styles = StyleSheet.create({
   },
   ingredientChipText: {
     color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 12,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 12
   },
   ingredientChipTextActive: {
     color: theme.colors.accent
+  },
+
+  // Save modal
+  modalOverlay: {
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.4)",
+    flex: 1,
+    justifyContent: "flex-end"
+  },
+  modalSheet: {
+    backgroundColor: theme.colors.surface,
+    borderTopLeftRadius: theme.radius.xl,
+    borderTopRightRadius: theme.radius.xl,
+    gap: 0,
+    paddingBottom: 36,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
+    width: "100%"
+  },
+  modalTitle: {
+    ...theme.type.label,
+    color: theme.colors.muted,
+    textAlign: "center",
+    marginBottom: theme.spacing.md
+  },
+  modalOption: {
+    gap: theme.spacing.xxs,
+    paddingVertical: theme.spacing.md
+  },
+  modalOptionTitle: {
+    ...theme.type.bodyMedium,
+    color: theme.colors.text
+  },
+  modalOptionDesc: {
+    ...theme.type.caption,
+    color: theme.colors.muted
+  },
+  modalDivider: {
+    backgroundColor: theme.colors.line,
+    height: StyleSheet.hairlineWidth
+  },
+  modalCancel: {
+    alignItems: "center",
+    marginTop: theme.spacing.md,
+    paddingVertical: theme.spacing.sm
+  },
+  modalCancelText: {
+    ...theme.type.label,
+    color: theme.colors.muted
   }
 });

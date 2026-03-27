@@ -95,18 +95,16 @@ const styles = StyleSheet.create({
   },
   brandPillText: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
+    fontFamily: theme.fonts.sansBold,
     fontSize: 12,
-    fontWeight: "800",
     letterSpacing: 1.4,
     textTransform: "uppercase"
   },
   title: {
     color: theme.colors.text,
-    fontFamily: theme.fonts.display,
+    fontFamily: theme.fonts.serifBold,
     fontSize: 38,
     lineHeight: 42,
-    fontWeight: "700",
     maxWidth: 340
   },
   subtitle: {
@@ -142,9 +140,8 @@ const styles = StyleSheet.create({
   },
   previewTitle: {
     color: theme.colors.text,
-    fontFamily: theme.fonts.body,
-    fontSize: 16,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 16
   },
   previewCopy: {
     color: theme.colors.muted,
@@ -157,9 +154,8 @@ const styles = StyleSheet.create({
   },
   footerTitle: {
     color: theme.colors.text,
-    fontFamily: theme.fonts.display,
-    fontSize: 20,
-    fontWeight: "700"
+    fontFamily: theme.fonts.serifBold,
+    fontSize: 20
   },
   footerCopy: {
     color: theme.colors.muted,

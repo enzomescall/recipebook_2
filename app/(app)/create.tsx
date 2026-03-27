@@ -624,39 +624,32 @@ function toOptionalNumber(value: string) {
 
 const styles = StyleSheet.create({
   header: {
-    gap: theme.spacing.sm,
-    paddingTop: theme.spacing.xl * 1.2
+    gap: theme.spacing.xs,
+    paddingTop: theme.spacing.xl
   },
   sectionLabel: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
+    fontFamily: theme.fonts.sansBold,
     fontSize: 12,
-    fontWeight: "800",
     letterSpacing: 1.2,
     textTransform: "uppercase"
   },
   title: {
+    ...theme.type.hero,
     color: theme.colors.text,
-    fontFamily: theme.fonts.display,
-    fontSize: 30,
-    lineHeight: 36,
-    fontWeight: "700",
     maxWidth: 340
   },
   subtitle: {
-    color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 15,
-    lineHeight: 22
+    ...theme.type.body,
+    color: theme.colors.muted
   },
   block: {
     gap: theme.spacing.md
   },
   blockTitle: {
+    ...theme.type.label,
     color: theme.colors.text,
-    fontFamily: theme.fonts.body,
-    fontSize: 16,
-    fontWeight: "700"
+    fontSize: 15
   },
   sectionHeader: {
     alignItems: "center",
@@ -680,23 +673,22 @@ const styles = StyleSheet.create({
   chips: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: theme.spacing.sm
+    gap: theme.spacing.xs
   },
   helper: {
+    ...theme.type.body,
     color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 13,
-    lineHeight: 20
+    fontSize: 13
   },
   selectorList: {
-    gap: theme.spacing.sm
+    gap: theme.spacing.xs
   },
   selectorCard: {
     backgroundColor: theme.colors.surface,
     borderColor: theme.colors.line,
     borderRadius: theme.radius.md,
     borderWidth: 1,
-    gap: theme.spacing.xs,
+    gap: theme.spacing.xxs,
     padding: theme.spacing.md
   },
   selectorCardActive: {
@@ -704,15 +696,12 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.accentSoft
   },
   selectorTitle: {
-    color: theme.colors.text,
-    fontFamily: theme.fonts.body,
-    fontSize: 15,
-    fontWeight: "700"
+    ...theme.type.bodyMedium,
+    color: theme.colors.text
   },
   selectorCopy: {
-    color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 13
+    ...theme.type.caption,
+    color: theme.colors.muted
   },
   photoRow: {
     alignItems: "center",
@@ -728,10 +717,8 @@ const styles = StyleSheet.create({
     gap: theme.spacing.xs
   },
   tagIngredientLabel: {
+    ...theme.type.caption,
     color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 12,
-    fontWeight: "700",
     letterSpacing: 0.6,
     textTransform: "uppercase"
   },
@@ -748,10 +735,9 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.accent
   },
   ingredientChipText: {
-    color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
+    fontFamily: theme.fonts.sansSemiBold,
     fontSize: 12,
-    fontWeight: "700"
+    color: theme.colors.muted
   },
   ingredientChipTextActive: {
     color: theme.colors.accent

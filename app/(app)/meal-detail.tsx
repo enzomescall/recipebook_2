@@ -274,15 +274,13 @@ const styles = StyleSheet.create({
   },
   backLabel: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
-    fontSize: 15,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 15
   },
   sectionLabel: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
+    fontFamily: theme.fonts.sansBold,
     fontSize: 12,
-    fontWeight: "800",
     letterSpacing: 1.2,
     textTransform: "uppercase"
   },
@@ -295,9 +293,8 @@ const styles = StyleSheet.create({
   title: {
     color: theme.colors.text,
     flex: 1,
-    fontFamily: theme.fonts.display,
+    fontFamily: theme.fonts.serifBold,
     fontSize: 26,
-    fontWeight: "700",
     lineHeight: 32
   },
   visibilityPill: {
@@ -308,9 +305,8 @@ const styles = StyleSheet.create({
   },
   visibilityText: {
     color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
+    fontFamily: theme.fonts.sansBold,
     fontSize: 11,
-    fontWeight: "700",
     textTransform: "capitalize"
   },
   caption: {
@@ -334,9 +330,8 @@ const styles = StyleSheet.create({
   },
   rankText: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
-    fontSize: 13,
-    fontWeight: "800"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 13
   },
   metaCopy: {
     color: theme.colors.muted,
@@ -381,9 +376,8 @@ const styles = StyleSheet.create({
   },
   actionLabel: {
     color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 13,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 13
   },
   actionLabelActive: {
     color: theme.colors.accent
@@ -399,17 +393,15 @@ const styles = StyleSheet.create({
   },
   recipeLabel: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
+    fontFamily: theme.fonts.sansBold,
     fontSize: 11,
-    fontWeight: "800",
     letterSpacing: 1.1,
     textTransform: "uppercase"
   },
   recipeName: {
     color: theme.colors.text,
-    fontFamily: theme.fonts.display,
-    fontSize: 17,
-    fontWeight: "700"
+    fontFamily: theme.fonts.serifBold,
+    fontSize: 17
   },
   recipeSubtext: {
     color: theme.colors.muted,
@@ -433,9 +425,8 @@ const styles = StyleSheet.create({
   },
   ownerName: {
     color: theme.colors.text,
-    fontFamily: theme.fonts.body,
-    fontSize: 15,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 15
   },
   ownerHandle: {
     color: theme.colors.muted,
@@ -447,9 +438,8 @@ const styles = StyleSheet.create({
   },
   ownerSectionTitle: {
     color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
+    fontFamily: theme.fonts.sansBold,
     fontSize: 12,
-    fontWeight: "700",
     letterSpacing: 1.1,
     textTransform: "uppercase"
   }

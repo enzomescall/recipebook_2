@@ -42,6 +42,9 @@ export function toRecipe(row: RecipeRow): Recipe {
       .sort((left, right) => left.orderIndex - right.orderIndex),
     steps: (row.recipe_steps ?? []).map((step) => toRecipeStep(step)).sort((left, right) => left.orderIndex - right.orderIndex),
     status: row.status,
+    rankPosition: row.rank_position ?? 0,
+    parentRecipeId: row.parent_recipe_id ?? null,
+    versionNumber: row.version_number ?? 1,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   };

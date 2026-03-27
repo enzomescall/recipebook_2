@@ -81,45 +81,37 @@ export default function ForgotPasswordScreen() {
 const styles = StyleSheet.create({
   header: {
     gap: theme.spacing.sm,
-    paddingTop: theme.spacing.xl * 1.5
+    paddingTop: theme.spacing.xxl
   },
   title: {
-    color: theme.colors.text,
-    fontFamily: theme.fonts.display,
-    fontSize: 34,
-    fontWeight: "700"
+    ...theme.type.hero,
+    color: theme.colors.text
   },
   subtitle: {
-    color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 15,
-    lineHeight: 22
+    ...theme.type.body,
+    color: theme.colors.muted
   },
   form: {
     gap: theme.spacing.md
   },
   helper: {
+    ...theme.type.body,
     color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 13,
-    lineHeight: 20
+    fontSize: 13
   },
   success: {
+    ...theme.type.body,
     color: theme.colors.success,
-    fontFamily: theme.fonts.body,
-    fontSize: 13,
-    lineHeight: 20
+    fontSize: 13
   },
   error: {
+    ...theme.type.body,
     color: theme.colors.danger,
-    fontFamily: theme.fonts.body,
-    fontSize: 13,
-    lineHeight: 20
+    fontSize: 13
   },
   link: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
-    fontSize: 14,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansSemiBold,
+    fontSize: 14
   }
 });

@@ -44,10 +44,22 @@ export type RecipeRow = {
   tags: string[];
   dietary_labels: string[];
   status: "draft" | "published";
+  rank_position: number;
+  parent_recipe_id: string | null;
+  version_number: number;
   created_at: string;
   updated_at: string;
   recipe_ingredients?: RecipeIngredientRow[];
   recipe_steps?: RecipeStepRow[];
+};
+
+export type RecipeComparisonRow = {
+  id: string;
+  user_id: string;
+  subject_recipe_id: string;
+  compared_against_recipe_id: string;
+  preferred_recipe_id: string;
+  created_at: string;
 };
 
 export type MealRow = {

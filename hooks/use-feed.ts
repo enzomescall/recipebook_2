@@ -49,6 +49,9 @@ function mapApiItemToDomainItem(item: ApiFeedItem): FeedItem {
     ingredients: [],
     steps: [],
     status: "published",
+    rankPosition: 0,
+    parentRecipeId: null,
+    versionNumber: 1,
     createdAt: item.mealCreatedAt,
     updatedAt: item.mealCreatedAt
   };

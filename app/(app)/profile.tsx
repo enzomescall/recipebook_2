@@ -19,8 +19,7 @@ export default function ProfileScreen() {
 
   const profile = profileQuery.data ?? null;
   const viewModel = buildProfileViewModel(profile, sessionUser);
-  const isConfigured = isSupabaseConfigured;
-  const hasProfileWarning = isConfigured && profileQuery.isError;
+  const hasProfileWarning = isSupabaseConfigured && profileQuery.isError;
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -31,121 +30,73 @@ export default function ProfileScreen() {
     }
   }
 
-  if (!isHydrated || (isConfigured && status === "loading")) {
+  if (!isHydrated || (isSupabaseConfigured && status === "loading")) {
     return (
       <Screen>
-        <LoadingState
-          title="Loading profile"
-          description="Checking your session and pulling your saved profile details."
-        />
-      </Screen>
-    );
-  }
-
-  if (!isConfigured) {
-    return (
-      <Screen>
-        <View style={styles.header}>
-          <Avatar name={viewModel.avatarSeed} uri={viewModel.avatarUrl} size={72} />
-          <View style={styles.identity}>
-            <Text style={styles.name}>{viewModel.name}</Text>
-            <Text style={styles.handle}>{viewModel.handle}</Text>
-            <Text style={styles.bio}>{viewModel.bio}</Text>
-          </View>
-        </View>
-
-        <Card>
-          <View style={styles.banner}>
-            <Text style={styles.bannerTitle}>Supabase is not configured</Text>
-            <Text style={styles.bannerCopy}>
-              Add the Expo public Supabase env vars to load your real profile and sign-out flow.
-            </Text>
-          </View>
-        </Card>
-
-        <StatsRow followers={viewModel.followersCount} following={viewModel.followingCount} meals={viewModel.mealsCount} />
+        <LoadingState title="Loading profile" />
       </Screen>
     );
   }
 
   return (
     <Screen>
+      {/* Profile header */}
       <View style={styles.header}>
-        <Avatar name={viewModel.avatarSeed} uri={viewModel.avatarUrl} size={72} />
-        <View style={styles.identity}>
-          <Text style={styles.name}>{viewModel.name}</Text>
-          <Text style={styles.handle}>{viewModel.handle}</Text>
-          <Text style={styles.bio}>{viewModel.bio}</Text>
-        </View>
+        <Avatar name={viewModel.avatarSeed} uri={viewModel.avatarUrl} size={80} />
+        <Text style={styles.name}>{viewModel.name}</Text>
+        <Text style={styles.handle}>{viewModel.handle}</Text>
+        {viewModel.bio ? <Text style={styles.bio}>{viewModel.bio}</Text> : null}
       </View>
 
-      <StatsRow followers={viewModel.followersCount} following={viewModel.followingCount} meals={viewModel.mealsCount} />
+      {/* Stats */}
+      <Card>
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <Text style={styles.statNum}>{viewModel.mealsCount}</Text>
+            <Text style={styles.statLabel}>Meals</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statNum}>{viewModel.followersCount}</Text>
+            <Text style={styles.statLabel}>Followers</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statNum}>{viewModel.followingCount}</Text>
+            <Text style={styles.statLabel}>Following</Text>
+          </View>
+        </View>
+      </Card>
 
       {hasProfileWarning ? (
         <ErrorState
-          title="Profile record needs attention"
-          description="We could not load the saved profile row, so we're showing your authenticated session details for now."
+          title="Couldn't load profile"
+          description="Showing session details instead."
           actionLabel="Retry"
-          onAction={() => {
-            profileQuery.refetch();
-          }}
+          onAction={() => profileQuery.refetch()}
         />
       ) : null}
 
+      {!isSupabaseConfigured ? (
+        <Card>
+          <Text style={styles.bannerTitle}>Supabase not configured</Text>
+          <Text style={styles.bannerText}>Add environment variables to load your real profile.</Text>
+        </Card>
+      ) : null}
+
+      {/* Account info */}
       <Card>
-        <View style={styles.block}>
-          <Text style={styles.blockTitle}>Account</Text>
-          <InfoRow label="Email" value={viewModel.email} />
-          <InfoRow label="Username" value={viewModel.handle} />
-          <InfoRow label="Followers" value={String(viewModel.followersCount)} />
-          <InfoRow label="Following" value={String(viewModel.followingCount)} />
-        </View>
+        <Text style={styles.sectionTitle}>Account</Text>
+        <InfoRow label="Email" value={viewModel.email} />
+        <InfoRow label="Username" value={viewModel.handle} />
       </Card>
 
-      <Card>
-        <View style={styles.block}>
-          <Text style={styles.blockTitle}>Profile actions</Text>
-          <Button label="Edit profile" variant="secondary" onPress={() => router.push("/edit-profile")} />
-          <Button
-            label="Sign out"
-            variant="danger"
-            loading={isSigningOut}
-            onPress={handleSignOut}
-          />
-        </View>
-      </Card>
-    </Screen>
-  );
-}
-
-function StatsRow({
-  followers,
-  following,
-  meals
-}: {
-  followers: number;
-  following: number;
-  meals: string;
-}) {
-  return (
-    <Card>
-      <View style={styles.statsRow}>
-        <View style={styles.statItem}>
-          <Text style={styles.statValue}>{meals}</Text>
-          <Text style={styles.statLabel}>Meals</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statValue}>{followers}</Text>
-          <Text style={styles.statLabel}>Followers</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statValue}>{following}</Text>
-          <Text style={styles.statLabel}>Following</Text>
-        </View>
+      {/* Actions */}
+      <View style={styles.actions}>
+        <Button label="Edit profile" variant="secondary" fullWidth onPress={() => router.push("/edit-profile")} />
+        <Button label="Sign out" variant="danger" fullWidth loading={isSigningOut} onPress={handleSignOut} />
       </View>
-    </Card>
+    </Screen>
   );
 }
 
@@ -161,47 +112,26 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 const styles = StyleSheet.create({
   header: {
     alignItems: "center",
-    gap: theme.spacing.md,
-    paddingTop: theme.spacing.xl * 1.1
-  },
-  identity: {
-    alignItems: "center",
-    gap: theme.spacing.xs
+    gap: theme.spacing.xs,
+    paddingTop: theme.spacing.xxl
   },
   name: {
+    ...theme.type.hero,
     color: theme.colors.text,
-    fontFamily: theme.fonts.display,
-    fontSize: 30,
-    fontWeight: "700"
+    fontSize: 28
   },
   handle: {
-    color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 14
+    ...theme.type.body,
+    color: theme.colors.muted
   },
   bio: {
+    ...theme.type.body,
     color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 14,
-    lineHeight: 20,
     textAlign: "center",
-    maxWidth: 320
+    maxWidth: 300
   },
-  banner: {
-    gap: theme.spacing.xs
-  },
-  bannerTitle: {
-    color: theme.colors.text,
-    fontFamily: theme.fonts.body,
-    fontSize: 16,
-    fontWeight: "700"
-  },
-  bannerCopy: {
-    color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 14,
-    lineHeight: 20
-  },
+
+  // Stats
   statsRow: {
     flexDirection: "row"
   },
@@ -210,30 +140,35 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2
   },
-  statDivider: {
+  divider: {
     backgroundColor: theme.colors.line,
     width: 1
   },
-  statValue: {
+  statNum: {
+    ...theme.type.title,
     color: theme.colors.text,
-    fontFamily: theme.fonts.display,
-    fontSize: 22,
-    fontWeight: "700"
+    fontSize: 22
   },
   statLabel: {
-    color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 12,
-    fontWeight: "600"
+    ...theme.type.caption,
+    color: theme.colors.muted
   },
-  block: {
-    gap: theme.spacing.sm
+
+  // Banner
+  bannerTitle: {
+    ...theme.type.bodyMedium,
+    color: theme.colors.text
   },
-  blockTitle: {
+  bannerText: {
+    ...theme.type.body,
+    color: theme.colors.muted
+  },
+
+  // Account
+  sectionTitle: {
+    ...theme.type.label,
     color: theme.colors.text,
-    fontFamily: theme.fonts.body,
-    fontSize: 16,
-    fontWeight: "700"
+    fontSize: 15
   },
   infoRow: {
     flexDirection: "row",
@@ -241,16 +176,18 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md
   },
   infoLabel: {
-    color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 13
+    ...theme.type.body,
+    color: theme.colors.muted
   },
   infoValue: {
+    ...theme.type.bodyMedium,
     color: theme.colors.text,
-    fontFamily: theme.fonts.body,
-    fontSize: 13,
-    fontWeight: "700",
     textAlign: "right",
     flexShrink: 1
+  },
+
+  // Actions
+  actions: {
+    gap: theme.spacing.sm
   }
 });

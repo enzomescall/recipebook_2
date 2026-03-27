@@ -178,18 +178,16 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
+    fontFamily: theme.fonts.sansBold,
     fontSize: 12,
-    fontWeight: "800",
     letterSpacing: 1.2,
     textTransform: "uppercase"
   },
   title: {
     color: theme.colors.text,
-    fontFamily: theme.fonts.display,
+    fontFamily: theme.fonts.serifBold,
     fontSize: 30,
     lineHeight: 36,
-    fontWeight: "700",
     maxWidth: 340
   },
   subtitle: {
@@ -218,9 +216,8 @@ const styles = StyleSheet.create({
   },
   name: {
     color: theme.colors.text,
-    fontFamily: theme.fonts.body,
-    fontSize: 15,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 15
   },
   username: {
     color: theme.colors.muted,
@@ -229,9 +226,8 @@ const styles = StyleSheet.create({
   },
   note: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
-    fontSize: 13,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansBold,
+    fontSize: 13
   },
   detail: {
     color: theme.colors.muted,

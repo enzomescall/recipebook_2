@@ -53,8 +53,25 @@ export type Recipe = {
   ingredients: RecipeIngredient[];
   steps: RecipeStep[];
   status: RecipeStatus;
+  rankPosition: number;
+  parentRecipeId: string | null;
+  versionNumber: number;
   createdAt: string;
   updatedAt: string;
+};
+
+export type RecipeWithStats = Recipe & {
+  mealCount: number;
+  lastCookedAt: string | null;
+};
+
+export type RecipeComparison = {
+  id: string;
+  userId: string;
+  subjectRecipeId: string;
+  comparedAgainstRecipeId: string;
+  preferredRecipeId: string;
+  createdAt: string;
 };
 
 export type Meal = {

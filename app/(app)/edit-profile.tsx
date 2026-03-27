@@ -233,17 +233,15 @@ const styles = StyleSheet.create({
   },
   eyebrow: {
     color: theme.colors.accent,
-    fontFamily: theme.fonts.body,
+    fontFamily: theme.fonts.sansBold,
     fontSize: 12,
-    fontWeight: "700",
     letterSpacing: 1,
     textTransform: "uppercase"
   },
   title: {
     color: theme.colors.text,
-    fontFamily: theme.fonts.display,
+    fontFamily: theme.fonts.serifBold,
     fontSize: 30,
-    fontWeight: "700",
     lineHeight: 36
   },
   avatarBlock: {

@@ -1,13 +1,5 @@
 import { ReactNode } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  type PressableProps,
-  type StyleProp,
-  type ViewStyle
-} from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, type PressableProps, type StyleProp, type ViewStyle } from "react-native";
 
 import { theme } from "../../constants/theme";
 
@@ -53,7 +45,7 @@ export function Button({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "primary" ? theme.colors.white : theme.colors.accent} />
+        <ActivityIndicator color={variant === "primary" || variant === "danger" ? theme.colors.white : theme.colors.accent} />
       ) : (
         <Text style={[styles.label, labelStyles[variant], sizeLabelStyles[size]]}>
           {children ?? label}
@@ -70,76 +62,37 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center"
   },
-  fullWidth: {
-    width: "100%"
-  },
-  disabled: {
-    opacity: 0.55
-  },
-  pressed: {
-    transform: [{ scale: 0.985 }]
-  },
+  fullWidth: { width: "100%" },
+  disabled: { opacity: 0.5 },
+  pressed: { transform: [{ scale: 0.97 }] },
   label: {
-    fontFamily: theme.fonts.body,
-    fontWeight: "700"
+    fontFamily: theme.fonts.sansSemiBold,
+    fontSize: 15
   }
 });
 
 const sizeStyles = StyleSheet.create({
-  sm: {
-    minHeight: 36,
-    paddingHorizontal: theme.spacing.md
-  },
-  md: {
-    minHeight: 46,
-    paddingHorizontal: theme.spacing.lg
-  },
-  lg: {
-    minHeight: 54,
-    paddingHorizontal: theme.spacing.xl
-  }
+  sm: { minHeight: 34, paddingHorizontal: theme.spacing.md },
+  md: { minHeight: 44, paddingHorizontal: theme.spacing.lg },
+  lg: { minHeight: 52, paddingHorizontal: theme.spacing.xl }
 });
 
 const sizeLabelStyles = StyleSheet.create({
-  sm: {
-    fontSize: 13
-  },
-  md: {
-    fontSize: 15
-  },
-  lg: {
-    fontSize: 16
-  }
+  sm: { fontSize: 13 },
+  md: { fontSize: 15 },
+  lg: { fontSize: 16 }
 });
 
 const variantStyles = StyleSheet.create({
-  primary: {
-    backgroundColor: theme.colors.accent
-  },
-  secondary: {
-    backgroundColor: theme.colors.surface,
-    borderColor: theme.colors.line,
-    borderWidth: 1
-  },
-  ghost: {
-    backgroundColor: "transparent"
-  },
-  danger: {
-    backgroundColor: theme.colors.danger
-  }
+  primary: { backgroundColor: theme.colors.accent },
+  secondary: { backgroundColor: theme.colors.surfaceStrong },
+  ghost: { backgroundColor: "transparent" },
+  danger: { backgroundColor: theme.colors.danger }
 });
 
 const labelStyles = StyleSheet.create({
-  primary: {
-    color: theme.colors.white
-  },
-  secondary: {
-    color: theme.colors.text
-  },
-  ghost: {
-    color: theme.colors.text
-  },
-  danger: {
-    color: theme.colors.white
-  }
+  primary: { color: theme.colors.white },
+  secondary: { color: theme.colors.text },
+  ghost: { color: theme.colors.text },
+  danger: { color: theme.colors.white }
 });
