@@ -1,10 +1,21 @@
 import { PropsWithChildren, useEffect } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { useSessionStore } from "@/store/session";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      console.error(`[query error] key=${JSON.stringify(query.queryKey)}`, error);
+    }
+  }),
+  mutationCache: new MutationCache({
+    onError: (error) => {
+      console.error("[mutation error]", error);
+    }
+  })
+});
 
 function AuthBootstrap() {
   const hydrateSession = useSessionStore((state) => state.hydrateSession);

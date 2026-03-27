@@ -9,7 +9,7 @@ export async function pickImage(options?: {
   aspect?: [number, number];
 }): Promise<string | null> {
   const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    mediaTypes: ["images"] as ImagePicker.MediaType[],
     allowsEditing: options?.allowsEditing ?? true,
     aspect: options?.aspect,
     quality: 0.8

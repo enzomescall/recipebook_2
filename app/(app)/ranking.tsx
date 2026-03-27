@@ -45,9 +45,12 @@ export default function RankingScreen() {
     enabled: isSupabaseConfigured && Boolean(userId) && entityType === "recipe"
   });
 
-  const items = entityType === "recipe"
-    ? (recipesQuery.data ?? []).map((r) => ({ id: r.id, title: r.title, imageUrl: r.coverImageUrl, rankPosition: r.rankPosition }))
-    : (mealsQuery.data ?? []).map((m) => ({ id: m.id, title: m.title, imageUrl: m.heroImageUrl, rankPosition: m.rankPosition }));
+  const items = useMemo(
+    () => entityType === "recipe"
+      ? (recipesQuery.data ?? []).map((r) => ({ id: r.id, title: r.title, imageUrl: r.coverImageUrl, rankPosition: r.rankPosition }))
+      : (mealsQuery.data ?? []).map((m) => ({ id: m.id, title: m.title, imageUrl: m.heroImageUrl, rankPosition: m.rankPosition })),
+    [entityType, recipesQuery.data, mealsQuery.data]
+  );
 
   const isLoading = entityType === "recipe" ? recipesQuery.isLoading : mealsQuery.isLoading;
   const isError = entityType === "recipe" ? recipesQuery.isError : mealsQuery.isError;

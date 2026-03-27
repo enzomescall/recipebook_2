@@ -94,6 +94,29 @@ export async function createMeal(
   return toMeal(data);
 }
 
+export async function updateMeal(
+  mealId: string,
+  input: Partial<Pick<Meal, "title" | "caption" | "heroImageUrl" | "visibility">>
+): Promise<Meal> {
+  const supabase = getSupabaseClient();
+  const patch: Record<string, unknown> = {};
+  if (input.title !== undefined) patch.title = input.title;
+  if (input.caption !== undefined) patch.caption = input.caption;
+  if (input.heroImageUrl !== undefined) patch.hero_image_url = input.heroImageUrl;
+  if (input.visibility !== undefined) patch.visibility = input.visibility;
+
+  const { data, error } = await supabase
+    .from("meals")
+    .update(patch)
+    .eq("id", mealId)
+    .select("*")
+    .single<MealRow>();
+
+  mapSupabaseError(error, "Failed to update meal.");
+  if (!data) throw new Error("Failed to update meal.");
+  return toMeal(data);
+}
+
 export async function updateMealRankOrder(ownerId: string, orderedMealIds: string[]) {
   const supabase = getSupabaseClient();
 

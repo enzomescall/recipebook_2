@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
+import { Ionicons } from "@expo/vector-icons";
 import { Avatar, Button, Card, ErrorState, LoadingState } from "../../components/ui";
 import { Screen } from "../../components/layout";
 import { theme } from "../../constants/theme";
@@ -174,7 +175,11 @@ export default function MealDetailScreen() {
             onPress={() => currentUser && likeMutation.mutate()}
             disabled={!currentUser || likeMutation.isPending}
           >
-            <Text style={[styles.actionIcon, liked && styles.actionIconActive]}>♥</Text>
+            <Ionicons
+              name={liked ? "heart" : "heart-outline"}
+              size={16}
+              color={liked ? theme.colors.accent : theme.colors.muted}
+            />
             <Text style={[styles.actionLabel, liked && styles.actionLabelActive]}>
               {liked ? "Liked" : "Like"}
             </Text>
@@ -185,9 +190,13 @@ export default function MealDetailScreen() {
             onPress={() => currentUser && starMutation.mutate()}
             disabled={!currentUser || starMutation.isPending}
           >
-            <Text style={[styles.actionIcon, starred && styles.actionIconActive]}>★</Text>
+            <Ionicons
+              name={starred ? "bookmark" : "bookmark-outline"}
+              size={16}
+              color={starred ? theme.colors.accent : theme.colors.muted}
+            />
             <Text style={[styles.actionLabel, starred && styles.actionLabelActive]}>
-              {starred ? "Starred" : "Star"}
+              {starred ? "Saved" : "Save"}
             </Text>
           </Pressable>
 
@@ -195,7 +204,7 @@ export default function MealDetailScreen() {
             style={styles.actionButton}
             onPress={() => router.push({ pathname: "/(app)/comments", params: { mealId: meal.id } })}
           >
-            <Text style={styles.actionIcon}>💬</Text>
+            <Ionicons name="chatbubble-outline" size={16} color={theme.colors.muted} />
             <Text style={styles.actionLabel}>Comment</Text>
           </Pressable>
 
@@ -205,6 +214,11 @@ export default function MealDetailScreen() {
               onPress={() => currentUser && followMutation.mutate()}
               disabled={!currentUser || followMutation.isPending}
             >
+              <Ionicons
+                name={following ? "person-check" : "person-add-outline"}
+                size={16}
+                color={following ? theme.colors.accent : theme.colors.muted}
+              />
               <Text style={[styles.actionLabel, following && styles.actionLabelActive]}>
                 {following ? "Following" : "Follow"}
               </Text>
@@ -254,8 +268,8 @@ export default function MealDetailScreen() {
             <Button
               label="Edit meal"
               variant="secondary"
-              disabled
               fullWidth
+              onPress={() => router.push({ pathname: "/(app)/edit-meal", params: { mealId: meal.id } })}
             />
           </View>
         </Card>
@@ -365,14 +379,6 @@ const styles = StyleSheet.create({
   },
   actionButtonActive: {
     backgroundColor: theme.colors.accentSoft
-  },
-  actionIcon: {
-    color: theme.colors.muted,
-    fontFamily: theme.fonts.body,
-    fontSize: 15
-  },
-  actionIconActive: {
-    color: theme.colors.accent
   },
   actionLabel: {
     color: theme.colors.muted,
